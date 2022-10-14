@@ -1,0 +1,171 @@
+
+
+Remember to write your full name <MATH> and student number <MATH> prominently on your submission . <MATH> To avoid suspicions of plagiarism : at the beginning of your submission , <MATH> clearly state any
+resources <MATH> people , <MATH> print , <MATH> electronic <MATH> outside of your group , <MATH> the course notes , <MATH> and the
+course staff , <MATH> that you consulted . <MATH>
+
+Remember that you are required to submit your problem sets as both source files and
+files . <MATH> There is a <MATH> penalty on the assignment for failing to submit both the and . <MATH> . <MATH>
+
+Due Oct , <MATH> , <MATH> ; <MATH> required files : , <MATH>
+
+Answer each question completely , <MATH> always justifying your claims and reasoning . <MATH> Your solution will
+be graded not only on correctness , <MATH> but also on clarity . <MATH> Answers that are technically correct that
+are hard to understand will not receive full marks . <MATH> Mark values for each question are contained in
+the square brackets . <MATH>
+
+You may work in groups of up to THREE to complete these questions . <MATH>
+
+Please see the course information sheet for the late submission policy . <MATH>
+
+
+
+You are given an array of distinct numbers <MATH> not necessarily integers <MATH> in sorted order such that
+
+
+
+
+
+
+
+
+Systematically design an algorithm for this problem that has a time complexity of O <MATH> . <MATH>
+Note : re not allowed to use a formula for solving the cubic equation . <MATH>
+
+. <MATH> points <MATH> Clearly describe all the that will be solved by your algorithm , <MATH> and
+the values that will be stored in all the being used by your algorithm . <MATH>
+
+
+The sub problem that our algorithm needs to solve at each step will be one of the three cases :
+
+a <MATH> When the result of the given expression with the current a , <MATH> is less than the expected
+result , <MATH> the in this case will be on the list excluding the first element . <MATH>
+
+When the result of the given expression with the current a , <MATH> is greater than the expected
+result , <MATH> the in this case will be on the list excluding the last element . <MATH>
+
+When the result of the given expression with the current a , <MATH> is equal than the expected
+result , <MATH> the in this case will be on the list excluding the first and the last
+
+
+The values that will be stored by the algorithm on every iteration will be the list of pairs that
+satisfied the expression <MATH>
+
+. <MATH> points <MATH> Write your algorithm in and analyze its complexity . <MATH>
+Solution : The Algorithm on a list Ist of size is as follows :
+
+
+: If the expression result is greater than , <MATH> then we remove by first <MATH> . <MATH> smallest <MATH>
+element from Ist and go back to Step <MATH> a <MATH> with this smaller
+
+: If the expression result is smaller than , <MATH> then we remove the last <MATH> largest <MATH> element
+
+
+
+and remove both a and and continue to step <MATH> a <MATH> with this new Ist
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Complexity : The number of iterations done by the while loop will always be lesser than or
+equal to the length of the original list passed to us as we only when the list has elements
+and remove either one or two elements from the list at each step depending on the conditions <MATH> . <MATH>
+
+
+. <MATH> points <MATH> Give a convincing proof of correctness for your algorithm . <MATH> Remember that if your
+algorithm is greedy , <MATH> you will not get any marks for the previous parts without a proof of
+
+
+
+
+To prove the correctness of our algorithm , <MATH> we have to prove that our loop terminates and gives
+
+
+
+
+We see that we have three cases under the loop when the expression is less than , <MATH> greater
+than or equal to It is clear from the program that in each of these cases the size of the
+list is decreasing , <MATH> so we can consider len <MATH> Ist <MATH> as our loop variant . <MATH> Since we see that the variant
+decreases will eventually hit , <MATH> our loop terminates . <MATH> Hence the program will terminate . <MATH>
+
+
+
+
+Claim : is always the smallest element of the list
+
+Proof : Since the list given to us is sorted , <MATH> the first element will always be smallest . <MATH> We are
+never changing the position of elements in the list so this always holds . <MATH>
+
+Proof : Since the list given to us is sorted , <MATH> the last element will always be largest . <MATH> We are
+never changing the position of elements in the list so this always holds . <MATH>
+
+Our algorithm within the loop has three different cases . <MATH> We have to prove that all three cases
+
+
+
+In this case we remove the first element from our list , <MATH> claiming that it can not form a pair with
+any other element from the list to make
+
+Claim : can not form a pair with any value in the list such that
+
+Proof : We can prove this by contradiction . <MATH> Assume by contradiction there exists a value Ist
+such that a ? ? But since we have already proven that is the largest element in
+
+
+
+
+
+
+
+In this case we remove the last element from our list , <MATH> claiming that it can not form a pair with
+any other element from the list to make
+
+Claim : <MATH> Ist <MATH> can not form a pair with any value in the list such that
+
+Proof : We can prove this by contradiction . <MATH> Assume by contradiction there exists a value Ist
+such that <MATH> ? <MATH> But since we have already proven that a is the smallest element
+
+
+
+
+
+
+
+
+In this case we remove both the first and last elements from the list since they have been
+added to the solution list of pairs now , <MATH> and are no longer needed as neither a nor can form
+a case with any other value . <MATH>
+
+Claim : Neither a nor can form another pair with a value from Ist . <MATH>
+
+
+
+a <MATH> First we can show that a can not make another pair with other values from Ist to make
+Assume by contradiction there exists a value Ist such that <MATH> ?
+But since we have already proven that is the largest element in the list , <MATH> it must mean
+
+
+make a pair with any other value than . <MATH>Now we show that can not make another pair with any other value from Ist . <MATH> We can
+prove this by contradiction . <MATH> Assume by contradiction there exists another value Ist
+
+element in the list and we know that all elements of the list are unique , <MATH> it must mean
+
+
+make a pair with any other value than a . <MATH>
+
+Since whenever we find a pair that satisfies the equation , <MATH> we it to our solution list , <MATH>
+the length of the solution list gives us the correct number of pairs . <MATH>

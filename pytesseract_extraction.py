@@ -37,12 +37,17 @@ def FindDictWord(text):
 		word_end_index = min(text[word_end_index:].find(' '), text[word_end_index:].find('\n'))
 	return word_start_index	
 
+def avg_word_length(word_list):
+	return sum(len(word) for word in word_list) / len(word_list)
 
 def GetMathTokensStructured(text):
 	text = text.strip()
 	sent_list = text.split('\n')
 	for j, sent in enumerate(sent_list):
 		word_list = word_tokenize(sent)
+		if len(word_list) <= 5 or avg_word_length(word_list) <= 3:
+			sent_list[j] = []
+			continue
 		last_dict_word_found = 0
 		edit_word_list = []
 		for i, word in enumerate(word_list):
@@ -60,6 +65,72 @@ def GetMathTokensStructured(text):
 
 	return "\n".join(new_lst)
 
+def texttiling(text):
+	# Import libraries
+	import nltk.tokenize.texttiling as texttiling
+	import nltk
+	from nltk.tokenize import RegexpTokenizer
+	from nltk import word_tokenize
+	from nltk.corpus import stopwords
+	from nltk.tokenize import word_tokenize
+	from nltk.stem import WordNetLemmatizer
+
+	# Tokenize text
+	# tokenizer = RegexpTokenizer(r'\w+')
+	# tokens = tokenizer.tokenize(text)
+
+	stop_words = set(stopwords.words('english'))
+
+
+	# Remove stop words
+	# text_split = text.split('\n')
+
+	words_sent = text.split(' ')
+	for i in range(len(words_sent)):
+		word = words_sent[i]
+		if '\n' in word:
+			index = words_sent.index(word)
+			two_words = word.split('\n')
+			count = word.count('\n')
+			words_sent.insert(index+1, two_words[0])
+			words_sent.insert(index+2, '\n'*count)
+			words_sent.insert(index+2, two_words[1])
+			words_sent.remove(word)
+			i += 3
+
+	print(words_sent)
+	stop_words_filtered_sentence = [word for word in words_sent if word not in stop_words]
+	# print(stop_words_filtered_sentence)
+
+	# Not doing this to preserve the paragraph structure
+	# # Removed extra ['']
+	# filtered_stop_words = [sent for sent in stop_words_filtered_sentence if sent != ['']]
+	# # print(filtered_stop_words)
+
+	# Lemmatize words
+	lemmatizer = WordNetLemmatizer()
+	lemmatized_words = [lemmatizer.lemmatize(word) for word in stop_words_filtered_sentence]
+	# print(lemmatized_words)
+
+	# Join words to sentences
+	joined_sents = ' '.join(lemmatized_words)
+	print(joined_sents)
+
+	# Create TextTiling object
+	tt = texttiling.TextTilingTokenizer()
+
+	# Get segments
+	segments = tt.tokenize(joined_sents)
+
+	# Print segments
+	# print(segments)
+
+	# Print segments with text
+	# for segment in segments:
+	# 	print(' '.join(tokens[segment[0]:segment[1]]))
+
+	return segments
+
 
 def main():
 	''' Main execution point of the program'''
@@ -75,7 +146,7 @@ def main():
 		)
 
 		# Windows also needs poppler_exe
-		path_to_poppler_exe = Path(r"C:/poppler-22.04.0/Library/bin")
+		path_to_poppler_exe = Path(r"D:/UTM/Fall2022/CSC493/Release-22.04.0-0/poppler-22.04.0/Library/bin")
 		
 		# Put our output files in a sane place...
 		out_directory = Path(r"~/Desktop").expanduser()
@@ -83,12 +154,12 @@ def main():
 		out_directory = Path("~").expanduser()	
 
 	# Path of the Input pdf
-	PDF_file = Path(r"C:/Users/Riddhesh/Documents/2nd year/CSC 236/ps3.pdf")
+	PDF_file = Path(r"D:\UTM\Fall2022\CSC493\CourseContentSummarization\PS3CSC373.pdf")
 
 	# Store all the pages of the PDF in a variable
 	image_file_list = []
 
-	text_file = out_directory / Path("out_text.txt")
+	text_file = "D:/UTM/Fall2022/CSC493/CourseContentSummarization/PS3CSC373.txt"
 	with TemporaryDirectory() as tempdir:
 		# Create a temporary directory to hold our temporary images.
 
@@ -118,7 +189,7 @@ def main():
 		Part #2 - Recognizing text from the images using OCR
 		"""
 
-		with open(text_file, "a") as output_file:
+		with open(text_file, "w") as output_file:
 			# Open the file in append mode so that
 			# All contents of all images are added to the same file
 
@@ -132,7 +203,9 @@ def main():
 
 				math_token_text = GetMathTokensStructured(text)
 				# Finally, write the processed text to the file.
-				output_file.write(text)
+				output_file.write(math_token_text)
+
+		
 				
 	
 if __name__ == "__main__":
