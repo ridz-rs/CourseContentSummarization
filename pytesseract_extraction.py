@@ -25,6 +25,16 @@ def IsDictWord(word):
 	return (word in [',', ';',':', '.', '\'','\"', '?', '!', '`']) or\
 	    (word in spell)
 
+def is_low_average_word_len(word_list):
+	s = 0
+	for word in word_list:
+		if word == '<MATH>':
+			print(f"Found <MATH> in {word_list}")
+			return False
+		s += len(word)
+
+	return s/len(word_list) <= 3
+
 def FindDictWord(text):
 	word_start_index = 0
 	word_end_index = min(text.find(' '), text.find('\n'))
@@ -43,20 +53,23 @@ def GetMathTokensStructured(text):
 	sent_list = text.split('\n')
 	for j, sent in enumerate(sent_list):
 		word_list = word_tokenize(sent)
-		last_dict_word_found = 0
 		edit_word_list = []
 		for i, word in enumerate(word_list):
 			if IsDictWord(word):
-				last_dict_word_found = i
 				edit_word_list.append(word)
 			if len(word)==1 and IsMathSymbol(word):
 				if len(edit_word_list)>0 and edit_word_list[-1] != '<MATH>':
 					edit_word_list.append('<MATH>')
-		sent_list[j] = edit_word_list[:]
+
+		if len(edit_word_list) != 0 and (len(edit_word_list) < 5  or is_low_average_word_len(edit_word_list)):
+			sent_list[j] = []
+		else:
+			sent_list[j] = edit_word_list[:]
 
 	new_lst = []
 	for w_list in sent_list:
 		new_lst.append(" ".join(w_list))
+
 
 	return "\n".join(new_lst)
 
@@ -129,7 +142,8 @@ def main():
 				text = str(((pytesseract.image_to_string(Image.open(image_file)))))
 
 				text = text.replace("-\n", "")
-
+				
+				filter_blips = filter_blips(text)
 				math_token_text = GetMathTokensStructured(text)
 				# Finally, write the processed text to the file.
 				output_file.write(text)
