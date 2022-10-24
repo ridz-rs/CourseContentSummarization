@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import numpy as np
 from scipy.spatial.distance import euclidean, cosine
+import pandas as pd
 
 '''
 Gets TF-IDF scores between all tiles
@@ -45,17 +46,42 @@ def Cluster(tile_vectors):
     return opt_clusters
 
 
-# TODO: Fix this function to give the n closest vectors to each cluster center
-def RankTiles(clusters: KMeans, tile_vectors, dst_algo = cosine):
-    sorted_clusters = []
-    for cluster_center in clusters.cluster_centers_:
-        sorted_tiles_curr_cluster = sorted(tile_vectors, key=lambda tile : dst_algo(tile, cluster_center))
-        sorted_clusters.append(sorted_tiles_curr_cluster)
+def GetRelevantKeywords(n_terms, tile_vectors, cluster_labels, vectorizer):
+    """This function returns the keywords for each centroid of the KMeans"""
+    df = pd.DataFrame(tile_vectors.todense()).groupby(cluster_labels).mean() # groups the TF-IDF vector by cluster
+    terms = vectorizer.get_feature_names_out() # access tf-idf terms
+    cluster_to_keywords = {}
+    for i,r in df.iterrows():
+        print('\nCluster {}'.format(i))
+        top_terms = [terms[t] for t in np.argsort(r)[-n_terms:]]
+        cluster_to_keywords[i] = top_terms
+        print(','.join(top_terms)) # for each row of the dataframe, find the n terms that have the highest tf idf score
+    return cluster_to_keywords
+
+def FilterSents(text, top_keywords, n_sents=2):
+    text = text.lower()
+    text = text.replace('.', '<SEP>')
+    text = text.replace('!', '<SEP>')
+    text = text.replace('?', '<SEP>')
+    sent_list = text.split('<SEP>')
+    avg_scores = []
+    for isent in range(len(sent_list)):
+        score = 0
+        for word in sent_list[isent].split(' '):
+            if word in top_keywords:
+                score += 1
+        avg_scores.append(score/len(sent_list[isent]))
+    return '. '.join(list(np.array(sent_list)[np.argsort(avg_scores)])[:n_sents])
+
+        
+
+
+def GetSummarizedTiles(tiles, clusters, cluster_to_keywords):
+    summarized_tiles = ''
+    for itile in range(len(tiles)):
+        target_cluster_index = clusters.labels_[itile]
+        print(target_cluster_index)
+        top_keywords = cluster_to_keywords[target_cluster_index]
+        summarized_tiles += FilterSents(tiles[itile], top_keywords)
     
-    return sorted_clusters
-
-
-def GetSummaryVectors(n, clusters, tile_vectors, dst_algo = cosine):
-    sort_clusters = RankTiles(clusters, tile_vectors)
-    summary_vectors = [cluster[:n] for cluster in sort_clusters]
-    return summary_vectors
+    return summarized_tiles
