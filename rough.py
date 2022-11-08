@@ -13,3 +13,4 @@ tile_vectors = GetScores(segments)
 clusters = Cluster(tile_vectors)
 summary_vectors = GetSummaryVectors(3, clusters, tile_vectors)
 print(summary_vectors)
+
