@@ -21,11 +21,11 @@ def GetScores(tiles):
     print('\ntf-idf value:')
     print(result)
 
-    return result
+    return result, tfidf
 
 def Cluster(tile_vectors):
     Sum_of_squared_distances = []
-    K = range(2,tile_vectors.shape[0])
+    K = range(2,tile_vectors.shape[0]//2)
     opt_clusters = None
     opt_clusters_err = float('inf')
 
@@ -45,7 +45,6 @@ def Cluster(tile_vectors):
 
     return opt_clusters
 
-
 def GetRelevantKeywords(n_terms, tile_vectors, cluster_labels, vectorizer):
     """This function returns the keywords for each centroid of the KMeans"""
     df = pd.DataFrame(tile_vectors.todense()).groupby(cluster_labels).mean() # groups the TF-IDF vector by cluster
@@ -58,30 +57,13 @@ def GetRelevantKeywords(n_terms, tile_vectors, cluster_labels, vectorizer):
         print(','.join(top_terms)) # for each row of the dataframe, find the n terms that have the highest tf idf score
     return cluster_to_keywords
 
-def FilterSents(text, top_keywords, n_sents=2):
-    text = text.lower()
-    text = text.replace('.', '<SEP>')
-    text = text.replace('!', '<SEP>')
-    text = text.replace('?', '<SEP>')
-    sent_list = text.split('<SEP>')
-    avg_scores = []
-    for isent in range(len(sent_list)):
-        score = 0
-        for word in sent_list[isent].split(' '):
-            if word in top_keywords:
-                score += 1
-        avg_scores.append(score/len(sent_list[isent]))
-    return '. '.join(list(np.array(sent_list)[np.argsort(avg_scores)])[:n_sents])
 
-        
+def GetClusterTerms(vectorizer, tile_vectors, cluster_labels, cluster_index):
+  df = pd.DataFrame(tile_vectors.todense()).groupby(cluster_labels).mean() # groups the TF-IDF vector by cluster
+  terms = vectorizer.get_feature_names_out() # access tf-idf terms
+  for i,r in df.iterrows():
+      if i == cluster_index:
+        print([t for t in np.argsort(r)])
+        return [terms[t] for t in r]
 
 
-def GetSummarizedTiles(tiles, clusters, cluster_to_keywords):
-    summarized_tiles = ''
-    for itile in range(len(tiles)):
-        target_cluster_index = clusters.labels_[itile]
-        print(target_cluster_index)
-        top_keywords = cluster_to_keywords[target_cluster_index]
-        summarized_tiles += FilterSents(tiles[itile], top_keywords)
-    
-    return summarized_tiles
