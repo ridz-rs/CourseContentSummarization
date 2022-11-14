@@ -176,7 +176,7 @@ class TextTilingTokenizer(TokenizerI):
         gap_scores = []
         num_gaps = len(tokseqs) - 1
 
-        for curr_gap in range(numgaps):
+        for curr_gap in range(num_gaps):
             if curr_gap < self.k - 1:
                 window_size = curr_gap + 1
             elif curr_gap > numgaps - self.k:

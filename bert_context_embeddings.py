@@ -37,8 +37,8 @@ class BertVectorizer:
         # gradient calculation id disabled
         with torch.no_grad():
             # obtain hidden states
-            tokens_tensor = tokens_tensor.to(device)
-            segments_tensor = segments_tensor.to(device)
+            tokens_tensor = tokens_tensor.to(self.device)
+            segments_tensor = segments_tensor.to(self.device)
             # print(f"tokens_tensor dev: {tokens_tensor.device} ::: segments tensor dev: {segments_tensor.device}")
             outputs = self.model(tokens_tensor, segments_tensor)
             hidden_states = outputs[2]
@@ -74,7 +74,7 @@ class BertVectorizer:
 
         context_embeddings = []
         context_tokens = []
-        tokenized_text, tokens_tensor, segments_tensors = self.bert_text_preparation(block, tokenizer)
+        tokenized_text, tokens_tensor, segments_tensors = self.bert_text_preparation(block)
         list_token_embeddings = self.get_bert_embeddings(tokens_tensor, segments_tensors)
 
         # make ordered dictionary to keep track of the position of each word
@@ -103,13 +103,16 @@ class BertVectorizer:
 
 
     def block_similarity(self, b1, b2):
-        b1_context_tensor = self.get_context_embeddings(b1)
-        b2_context_tensor = self.get_context_embeddings(b2)
+        b1_embedding = self.get_context_embeddings(b1)
+        b2_embedding = self.get_context_embeddings(b2)
+
+        b1_context_tensor = torch.stack(b1_embedding)
+        b2_context_tensor = torch.stack(b2_embedding)
         cos = CosineSimilarity(dim=1, eps=1e-6)
-        perms = list(permutations([i for i in range(b2_embedding_tensor.shape[0])]))
+        perms = list(permutations([i for i in range(b2_context_tensor.shape[0])]))
         max_block_sim = -9999
         for i in range(len(perms)):
-            block_sim = torch.linalg.norm(cos(b1_embedding_tensor, b2_embedding_tensor[perms[i], :]))
+            block_sim = torch.linalg.norm(cos(b1_context_tensor, b2_context_tensor[perms[i], :]))
             max_block_sim = max(block_sim, max_block_sim)
         return max_block_sim
 
