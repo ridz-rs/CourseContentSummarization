@@ -72,34 +72,34 @@ class BertVectorizer:
 
     def get_context_embeddings(self, block):
 
-    context_embeddings = []
-    context_tokens = []
-    tokenized_text, tokens_tensor, segments_tensors = self.bert_text_preparation(block, tokenizer)
-    list_token_embeddings = self.get_bert_embeddings(tokens_tensor, segments_tensors)
+        context_embeddings = []
+        context_tokens = []
+        tokenized_text, tokens_tensor, segments_tensors = self.bert_text_preparation(block, tokenizer)
+        list_token_embeddings = self.get_bert_embeddings(tokens_tensor, segments_tensors)
 
-    # make ordered dictionary to keep track of the position of each word
-    tokens = OrderedDict()
+        # make ordered dictionary to keep track of the position of each word
+        tokens = OrderedDict()
 
-    # loop over tokens in sensitive sentence
-    for token in tokenized_text[1:-1]:
-        # keep track of position of word and whether it occurs multiple times
-        if token in tokens:
-        tokens[token] += 1
-        else:
-        tokens[token] = 1
+        # loop over tokens in sensitive sentence
+        for token in tokenized_text[1:-1]:
+            # keep track of position of word and whether it occurs multiple times
+            if token in tokens:
+                tokens[token] += 1
+            else:
+                tokens[token] = 1
 
-        # compute the position of the current token
-        token_indices = [i for i, t in enumerate(tokenized_text) if t == token]
-        current_index = token_indices[tokens[token]-1]
+            # compute the position of the current token
+            token_indices = [i for i, t in enumerate(tokenized_text) if t == token]
+            current_index = token_indices[tokens[token]-1]
 
-        # get the corresponding embedding
-        token_vec = list_token_embeddings[current_index]
+            # get the corresponding embedding
+            token_vec = list_token_embeddings[current_index]
+            
+            # save values
+            context_tokens.append(token)
+            context_embeddings.append(token_vec.cpu())
         
-        # save values
-        context_tokens.append(token)
-        context_embeddings.append(token_vec.cpu())
-    
-    return context_embeddings
+        return context_embeddings
 
 
     def block_similarity(self, b1, b2):
