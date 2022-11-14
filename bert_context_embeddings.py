@@ -36,12 +36,12 @@ class BertVectorizer:
         """
         # gradient calculation id disabled
         with torch.no_grad():
-        # obtain hidden states
-        tokens_tensor = tokens_tensor.to(device)
-        segments_tensor = segments_tensor.to(device)
-        # print(f"tokens_tensor dev: {tokens_tensor.device} ::: segments tensor dev: {segments_tensor.device}")
-        outputs = self.model(tokens_tensor, segments_tensor)
-        hidden_states = outputs[2]
+            # obtain hidden states
+            tokens_tensor = tokens_tensor.to(device)
+            segments_tensor = segments_tensor.to(device)
+            # print(f"tokens_tensor dev: {tokens_tensor.device} ::: segments tensor dev: {segments_tensor.device}")
+            outputs = self.model(tokens_tensor, segments_tensor)
+            hidden_states = outputs[2]
         # concatenate the tensors for all layers
         # use "stack" to create new dimension in tensor
         token_embeddings = torch.stack(hidden_states, dim=0)
