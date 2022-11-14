@@ -8,7 +8,7 @@
 
 import math
 import re
-from transformers import BertTokenizer, BertModel
+from bert_context_embeddings import BertVectorizer
 
 try:
     import numpy
@@ -81,6 +81,9 @@ class TextTilingTokenizer(TokenizerI):
             stopwords = stopwords.words("english")
         self.__dict__.update(locals())
         del self.__dict__["self"]
+        if similarity_method == BERT_ENCODING_SPACE_COMPARISON:
+            self.vectorizer = BertVectorizer()
+        self.similarity_method = similarity_method
 
 
     def tokenize(self, text):
@@ -94,10 +97,14 @@ class TextTilingTokenizer(TokenizerI):
         # Tokenization step starts here
 
         # Remove punctuation
-        nopunct_text = "".join(
-            c for c in lowercase_text if re.match(r"[a-z\-' \n\t]", c)
-        )
-        nopunct_par_breaks = self._mark_paragraph_breaks(nopunct_text)
+        if self.similarity_method != BERT_ENCODING_SPACE_COMPARISON:
+            nopunct_text = "".join(
+                c for c in lowercase_text if re.match(r"[a-z\-' \n\t]", c)
+            )
+            nopunct_par_breaks = self._mark_paragraph_breaks(nopunct_text)
+        else:
+            nopunct_text = text
+            nopunct_par_breaks = self._mark_paragraph_breaks(text)
 
         tokseqs = self._divide_to_tokensequences(nopunct_text)
 
@@ -109,10 +116,11 @@ class TextTilingTokenizer(TokenizerI):
         # words = _stem_words(words)
 
         # Filter stopwords
-        for ts in tokseqs:
-            ts.wrdindex_list = [
-                wi for wi in ts.wrdindex_list if wi[0] not in self.stopwords
-            ]
+        if self.similarity_method != BERT_ENCODING_SPACE_COMPARISON:
+            for ts in tokseqs:
+                ts.wrdindex_list = [
+                    wi for wi in ts.wrdindex_list if wi[0] not in self.stopwords
+                ]
 
         token_table = self._create_token_table(tokseqs, nopunct_par_breaks)
         # End of the Tokenization step
@@ -164,7 +172,41 @@ class TextTilingTokenizer(TokenizerI):
 
     def _bert_encoding_space_comparison(self, tokseqs, token_table):
         """Implements the bert encoding comparison method"""
-    # TODO
+
+        gap_scores = []
+        num_gaps = len(tokseqs) - 1
+
+        for curr_gap in range(numgaps):
+            if curr_gap < self.k - 1:
+                window_size = curr_gap + 1
+            elif curr_gap > numgaps - self.k:
+                window_size = numgaps - curr_gap
+            else:
+                window_size = self.k
+
+            b1_toks = [ts for ts in tokseqs[curr_gap - window_size + 1 : curr_gap + 1]]
+            b2_toks = [ts for ts in tokseqs[curr_gap + 1 : curr_gap + window_size + 1]]
+            # for ts in tokseqs:
+            #     ts.wrdindex_list = [
+            #         wi for wi in ts.wrdindex_list if wi[0] not in self.stopwords
+            #     ]
+            b1_text_lst = []
+            b2_text_lst = []
+            for ts in b1_toks:
+                b1_text_lst.extend([wi[0] for wi in ts.wrdindex_list])
+ 
+            for ts in b2_toks:
+                b2_text_lst.extend([wi[0] for wi in ts.wrdindex_list])
+
+            b1_text = " ".join(b1_text_lst)
+            b2_text = " ".join(b2_text_lst)
+
+            gap_scores.append(self.vectorizer.block_similarity(b1_text, b2_text))
+
+        return gap_scores
+
+            
+            
             
 
 
