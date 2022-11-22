@@ -2,11 +2,11 @@ from text_tiling import TextTiling
 from clustering import *
 from summarizer import GetSummarizedTiles
 
-with open('C:/Users/Riddhesh/Desktop/remove_small_sents.txt', 'r') as f:
+with open('PS3CSC373.txt', 'r') as f:
     text = f.read() 
-    segments = TextTiling(text)
+    segments = TextTiling(text, 2)
 
-with open('C:/Users/Riddhesh/Desktop/TT.txt', 'w') as f: 
+with open('TT.txt', 'w') as f: 
     # for segment in segments:
     f.writelines(segments)
 
