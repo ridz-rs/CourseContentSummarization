@@ -102,7 +102,9 @@ class TextTilingTokenizer(TokenizerI):
         # Tokenization step starts here
 
         # Remove punctuation
-        if self.similarity_method != BERT_ENCODING_SPACE_COMPARISON:
+        if self.similarity_method != BERT_ENCODING_SPACE_COMPARISON and\
+            self.similarity_method != SBERT_ENCODING_SPACE_COMPARISON and\
+                self.similarity_method != PHRASE_BERT_ENCODING_SPACE_COMPARISON:
             nopunct_text = "".join(
                 c for c in lowercase_text if re.match(r"[a-z\-' \n\t]", c)
             )
