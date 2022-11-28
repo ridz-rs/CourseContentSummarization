@@ -123,7 +123,9 @@ class TextTilingTokenizer(TokenizerI):
         # words = _stem_words(words)
 
         # Filter stopwords
-        if self.similarity_method != BERT_ENCODING_SPACE_COMPARISON:
+        if self.similarity_method != BERT_ENCODING_SPACE_COMPARISON and\
+            self.similarity_method != SBERT_ENCODING_SPACE_COMPARISON and\
+                self.similarity_method != PHRASE_BERT_ENCODING_SPACE_COMPARISON:
             for ts in tokseqs:
                 ts.wrdindex_list = [
                     wi for wi in ts.wrdindex_list if wi[0] not in self.stopwords
