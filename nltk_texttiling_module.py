@@ -8,7 +8,7 @@
 
 import math
 import re
-from bert_context_embeddings import BertVectorizer
+from bert_context_embeddings import *
 
 try:
     import numpy
@@ -17,7 +17,8 @@ except ImportError:
 
 from nltk.tokenize.api import TokenizerI
 
-BLOCK_COMPARISON, VOCABULARY_INTRODUCTION, BERT_ENCODING_SPACE_COMPARISON = 0, 1, 2
+BLOCK_COMPARISON, VOCABULARY_INTRODUCTION = 0, 1 
+BERT_ENCODING_SPACE_COMPARISON, SBERT_ENCODING_SPACE_COMPARISON, PHRASE_BERT_ENCODING_SPACE_COMPARISON= 2, 3, 4
 LC, HC = 0, 1
 DEFAULT_SMOOTHING = [0]
 
@@ -83,6 +84,10 @@ class TextTilingTokenizer(TokenizerI):
         del self.__dict__["self"]
         if similarity_method == BERT_ENCODING_SPACE_COMPARISON:
             self.vectorizer = BertVectorizer()
+        elif similarity_method == SBERT_ENCODING_SPACE_COMPARISON:
+            self.vectorizer = SbertVectorizer()
+        elif similarity_method == PHRASE_BERT_ENCODING_SPACE_COMPARISON:
+            self.vectorizer = PhraseBertVectorizer()
         self.similarity_method = similarity_method
 
 
@@ -130,7 +135,9 @@ class TextTilingTokenizer(TokenizerI):
             gap_scores = self._block_comparison(tokseqs, token_table)
         elif self.similarity_method == VOCABULARY_INTRODUCTION:
             raise NotImplementedError("Vocabulary introduction not implemented")
-        elif self.similarity_method == BERT_ENCODING_SPACE_COMPARISON:
+        elif self.similarity_method == BERT_ENCODING_SPACE_COMPARISON or \
+            self.similarity_method == SBERT_ENCODING_SPACE_COMPARISON or \
+                self.similarity_method == PHRASE_BERT_ENCODING_SPACE_COMPARISON:
             gap_scores = self._bert_encoding_space_comparison(tokseqs, token_table)
         else:
             raise ValueError(
@@ -179,8 +186,8 @@ class TextTilingTokenizer(TokenizerI):
         for curr_gap in range(num_gaps):
             if curr_gap < self.k - 1:
                 window_size = curr_gap + 1
-            elif curr_gap > numgaps - self.k:
-                window_size = numgaps - curr_gap
+            elif curr_gap > num_gaps - self.k:
+                window_size = num_gaps - curr_gap
             else:
                 window_size = self.k
 

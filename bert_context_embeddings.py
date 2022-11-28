@@ -2,7 +2,7 @@ from transformers import BertTokenizer, BertModel
 from collections import OrderedDict 
 import torch
 from torch.nn import CosineSimilarity
-from itertools import permutations
+from sentence_transformers import SentenceTransformer
 
 class BertVectorizer:
     def __init__(self):
@@ -109,10 +109,43 @@ class BertVectorizer:
         b1_context_tensor = torch.stack(b1_embedding)
         b2_context_tensor = torch.stack(b2_embedding)
         cos = CosineSimilarity(dim=1, eps=1e-6)
-        perms = list(permutations([i for i in range(b2_context_tensor.shape[0])]))
-        max_block_sim = -9999
-        for i in range(len(perms)):
-            block_sim = torch.linalg.norm(cos(b1_context_tensor, b2_context_tensor[perms[i], :]))
-            max_block_sim = max(block_sim, max_block_sim)
-        return max_block_sim
+        block_sim = torch.linalg.norm(cos(b1_context_tensor, b2_context_tensor))
+        return block_sim
+
+
+class SbertVectorizer:
+    def __init__(self):
+        '''
+        The all-mpnet-base-v2 model provides the best quality, 
+        while all-MiniLM-L6-v2 is 5 times faster and still offers good quality 
+        '''
+        self.model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
+
+    def block_similarity(self, b1, b2):
+        b1_embedding = self.model.encode(b1)
+        b2_embedding = self.model.encode(b2)
+        cos = CosineSimilarity(dim=0, eps=1e-6)
+        b1_embedding_tensor = torch.from_numpy(b1_embedding)
+        b2_embedding_tensor = torch.from_numpy(b2_embedding)
+        return cos(b1_embedding_tensor[0], b2_embedding_tensor[1])
+
+class PhraseBertVectorizer:
+    def __init__(self) -> None:
+        self.model = SentenceTransformer('phrase-bert-model/pooled_context_para_triples_p=0.8/0_BERT')
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
+
+    def block_similarity(self, b1, b2):
+        b1_embedding = self.model.encode(b1)
+        b2_embedding = self.model.encode(b2)
+        cos = CosineSimilarity(dim=0, eps=1e-6)
+        b1_embedding_tensor = torch.from_numpy(b1_embedding)
+        b2_embedding_tensor = torch.from_numpy(b2_embedding)
+        return cos(b1_embedding_tensor[0], b2_embedding_tensor[1])
+
+
+
+
 
