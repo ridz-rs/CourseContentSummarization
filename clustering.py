@@ -66,4 +66,9 @@ def GetClusterTerms(vectorizer, tile_vectors, cluster_labels, cluster_index):
         print([t for t in np.argsort(r)])
         return [terms[t] for t in r]
 
+def GetClosestTileVec(cluster_pts_indices, tile_vectors, centroid):
+  distances = []
+  for i in range(len(tile_vectors)):
+    distances.append(np.linalg.norm(tile_vectors[i]-centroid))
+  return tile_vectors[np.argmin(distances)]
 

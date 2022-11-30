@@ -197,10 +197,7 @@ class TextTilingTokenizer(TokenizerI):
 
             b1_toks = [ts for ts in tokseqs[curr_gap - window_size + 1 : curr_gap + 1]]
             b2_toks = [ts for ts in tokseqs[curr_gap + 1 : curr_gap + window_size + 1]]
-            # for ts in tokseqs:
-            #     ts.wrdindex_list = [
-            #         wi for wi in ts.wrdindex_list if wi[0] not in self.stopwords
-            #     ]
+
             b1_text_lst = []
             b2_text_lst = []
             for ts in b1_toks:
