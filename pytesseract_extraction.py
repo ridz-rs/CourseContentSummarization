@@ -12,8 +12,6 @@ from spellchecker import SpellChecker
 from nltk.tokenize import RegexpTokenizer
 from nltk import word_tokenize
 
-
-
 def IsMathSymbol(c):
 	if 33 < ord(c) < 47 or 58 < ord(c) < 62 or ord(c) == 94:
 		return True
