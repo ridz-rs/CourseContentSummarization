@@ -32,18 +32,24 @@ def GetSummarizedTiles(tiles, clusters, cluster_to_keywords):
     
     return summarized_tiles
 
+def GetClosestTileVec(tile_vectors, centroid):
+  distances = []
+  for i in range(len(tile_vectors)):
+    distances.append(np.linalg.norm(tile_vectors[i]-centroid))
+  return tile_vectors[np.argmin(distances)]
+
 '''
 Creating summary by finding closest tiles from cluster centroids
 '''
-def TileSelectSummary(clusters, tile_vectors):
+def TileSelectSummary(clusters, tile_vectors, tile_to_vec):
     summary_tiles = []
     for iclust in range(clusters.n_clusters):
-    cluster_pts_indices = np.where(clusters.labels_ == iclust)[0]
-    cluster_tiles = tile_vectors[cluster_pts_indices]
-    closest_tile_vec = get_closest_tile_vec(cluster_pts_indices, tile_vectors, clusters.cluster_centers_[iclust])
-    for key, value in tile_to_vec.items():
-        if (value==closest_tile_vec).all():
-        summary_tiles.append(key)
-        break
+        cluster_pts_indices = np.where(clusters.labels_ == iclust)[0]
+        cluster_tiles = tile_vectors[cluster_pts_indices]
+        closest_tile_vec = GetClosestTileVec(tile_vectors, clusters.cluster_centers_[iclust])
+        for key, value in tile_to_vec.items():
+            if (value==closest_tile_vec).all():
+                summary_tiles.append(key)
+                break
 
-    return ' '.join(summary_tiles)
+    return summary_tiles

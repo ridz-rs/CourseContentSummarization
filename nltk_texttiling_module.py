@@ -214,9 +214,6 @@ class TextTilingTokenizer(TokenizerI):
         return gap_scores
 
             
-            
-            
-
 
     def _block_comparison(self, tokseqs, token_table):
         """Implements the block comparison method"""

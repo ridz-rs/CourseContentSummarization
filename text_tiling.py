@@ -36,11 +36,11 @@ def TextTiling(text, method=BLOCK_COMPARISON):
       stop_words_filtered_word_list = RemoveStopWords(word_lst)
       lemmatized_words = Lemmatize(stop_words_filtered_word_list)
       cleaned_text = JoinWordLst(lemmatized_words)
-      tt = texttiling.TextTilingTokenizer(similarity_method=method)
+      tt = custom_texttiling.TextTilingTokenizer(similarity_method=method)
       segments = tt.tokenize(cleaned_text)
     else:
       tt = custom_texttiling(similarity_method=method)
       segments = tt.tokenize(text)
     
-    return segments
+    return segments, tt
 

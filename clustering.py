@@ -23,6 +23,10 @@ def GetScores(tiles):
 
     return result, tfidf
 
+def GetBERTTileScores(tokenizer, tiles):
+    embs = tokenizer.vectorizer.model.encode(tiles)
+    return embs
+
 def Cluster(tile_vectors):
     Sum_of_squared_distances = []
     K = range(2,tile_vectors.shape[0]//2)
@@ -66,9 +70,4 @@ def GetClusterTerms(vectorizer, tile_vectors, cluster_labels, cluster_index):
         print([t for t in np.argsort(r)])
         return [terms[t] for t in r]
 
-def GetClosestTileVec(cluster_pts_indices, tile_vectors, centroid):
-  distances = []
-  for i in range(len(tile_vectors)):
-    distances.append(np.linalg.norm(tile_vectors[i]-centroid))
-  return tile_vectors[np.argmin(distances)]
 
